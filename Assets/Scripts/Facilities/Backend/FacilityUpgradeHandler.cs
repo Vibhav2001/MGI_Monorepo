@@ -1,84 +1,52 @@
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class FacilityUpgradeHandler : MonoBehaviour
 {
     [Header("Set these in Inspector")]
-    public string teamId;
-    public string playerFacilityId;
-    public string action; // "start", "confirm", "rollback"
-    public Button upgradeButton;   // optional: to disable/enable during request
+    public string playerId = FacilitiesService.DefaultPlayerId;
+    public string facilityTypeId; // weight_room, rehab_center, film_room
+    public Button upgradeButton;
 
-    // Hook this in the Button's OnClick()
-    public void OnUpgradeButtonClick()
+    private FacilitiesService facilitiesService;
+
+    private void Awake()
     {
-        Debug.Log($"Upgrade button clicked! Action: {action}");
-        SendUpgradeRequest_NoCoroutine();
+        facilitiesService = new FacilitiesService();
     }
 
-    private void SendUpgradeRequest_NoCoroutine()
+    public void OnUpgradeButtonClick()
     {
-        string url = "http://localhost:5263/api/playerfacilities/upgrade";
+        Debug.Log($"Upgrade button clicked for facilityTypeId: {facilityTypeId}");
 
-        var payload = new UpgradeRequest
+        if (upgradeButton != null)
+            upgradeButton.interactable = false;
+
+        bool success = facilitiesService.TryUpgradeFacility(playerId, facilityTypeId, out var newState);
+
+        if (success)
         {
-            TeamId = teamId,
-            PlayerFacilityId = playerFacilityId,
-            Action = action
-        };
+            Debug.Log($"Upgrade Successful: {facilityTypeId} is now level {newState.level}");
 
-        string json = JsonUtility.ToJson(payload);
-        Debug.Log("Sending JSON: " + json);
+            var detailsHandler = FindFirstObjectByType<FacilityDetailsHandler>();
 
-        var request = new UnityWebRequest(url, "POST");
-        request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        if (upgradeButton) upgradeButton.interactable = false;
-
-        // NO coroutine. Use the async operation callback.
-        var op = request.SendWebRequest();
-        op.completed += _ =>
-        {
-            if (request.result == UnityWebRequest.Result.Success)
+            if (detailsHandler != null)
             {
-                Debug.Log("Upgrade Successful:\n" + request.downloadHandler.text);
-
-                // 🔹 Get the FacilityDetailsHandler on the same GameObject or elsewhere
-                var detailsHandler = FindObjectOfType<FacilityDetailsHandler>();
-                if (detailsHandler != null)
-                {
-                    // Make sure the IDs match before refreshing
-                    detailsHandler.SetIds(teamId, playerFacilityId);
-
-                    // 🔹 Re-fetch new level from backend and update UI
-                    detailsHandler.RefreshFromServer();
-
-                    Debug.Log("FacilityDetailsHandler refreshed after upgrade.");
-                }
-                else
-                {
-                    Debug.LogWarning("FacilityDetailsHandler not found in scene.");
-                }
+                detailsHandler.SetIds(playerId, facilityTypeId);
+                detailsHandler.RefreshFromLocalState();
+                Debug.Log("FacilityDetailsHandler refreshed from local state after upgrade.");
             }
             else
             {
-                Debug.LogError($"Upgrade Failed: {request.error}\n{request.downloadHandler.text}");
+                Debug.LogWarning("FacilityDetailsHandler not found in scene.");
             }
+        }
+        else
+        {
+            Debug.LogError($"Upgrade Failed for facilityTypeId: {facilityTypeId}");
+        }
 
-            if (upgradeButton) upgradeButton.interactable = true;
-            request.Dispose();
-
-        };
-    }
-
-    [System.Serializable]
-    private class UpgradeRequest
-    {
-        public string TeamId;
-        public string PlayerFacilityId;
-        public string Action;
+        if (upgradeButton != null)
+            upgradeButton.interactable = true;
     }
 }

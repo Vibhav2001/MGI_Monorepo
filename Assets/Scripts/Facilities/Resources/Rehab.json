@@ -1,0 +1,91 @@
+{
+    "levels": [
+        {
+            "level": 1,
+            "upgradeCost": 10000,
+            "descriptor": "Basic injury recovery and player health boost.",
+            "effects": {
+                "InjuryRecoveryMultiplier": 1.05,
+                "WeeklyRecoveryBoost": 1
+            },
+            "validation": {
+                "minCost": 5000,
+                "maxCost": 20000,
+                "effectCaps": {
+                    "InjuryRecoveryMultiplier": 1.5
+                }
+            }
+        },
+        {
+            "level": 2,
+            "upgradeCost": 25000,
+            "descriptor": "Improved recovery and minor injury risk reduction.",
+            "effects": {
+                "InjuryRecoveryMultiplier": 1.15,
+                "WeeklyRecoveryBoost": 2,
+                "PlayerHealthBoost": 0.02
+            },
+            "validation": {
+                "minCost": 15000,
+                "maxCost": 50000,
+                "effectCaps": {
+                    "InjuryRecoveryMultiplier": 2.0
+                }
+            }
+        },
+        {
+            "level": 3,
+            "upgradeCost": 50000,
+            "descriptor": "Significant recovery boost and noticeable health improvements.",
+            "effects": {
+                "InjuryRecoveryMultiplier": 1.25,
+                "WeeklyRecoveryBoost": 3,
+                "PlayerHealthBoost": 0.04,
+                "InjuryRiskReduction": 0.01
+            },
+            "validation": {
+                "minCost": 30000,
+                "maxCost": 100000,
+                "effectCaps": {
+                    "InjuryRecoveryMultiplier": 2.5
+                }
+            }
+        },
+        {
+            "level": 4,
+            "upgradeCost": 100000,
+            "descriptor": "Advanced medical care, further reducing injuries and boosting health.",
+            "effects": {
+                "InjuryRecoveryMultiplier": 1.35,
+                "WeeklyRecoveryBoost": 4,
+                "PlayerHealthBoost": 0.06,
+                "InjuryRiskReduction": 0.02
+            },
+            "validation": {
+                "minCost": 70000,
+                "maxCost": 200000,
+                "effectCaps": {
+                    "InjuryRecoveryMultiplier": 3.0
+                }
+            }
+        },
+        {
+            "level": 5,
+            "upgradeCost": 200000,
+            "descriptor": "Elite rehabilitation and injury prevention program.",
+            "effects": {
+                "InjuryRecoveryMultiplier": 1.50,
+                "WeeklyRecoveryBoost": 5,
+                "PlayerHealthBoost": 0.08,
+                "InjuryRiskReduction": 0.03
+            },
+            "validation": {
+                "minCost": 150000,
+                "maxCost": 300000,
+                "effectCaps": {
+                    "InjuryRecoveryMultiplier": 3.5
+                }
+            }
+        }
+    ]
+}

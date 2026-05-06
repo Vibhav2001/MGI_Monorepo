@@ -1,0 +1,88 @@
+{
+    "levels": [
+        {
+            "level": 1,
+            "upgradeCost": 12000,
+            "descriptor": "Basic strength and conditioning program.",
+            "effects": {
+                "PlayerStrengthBoost": 0.04,
+                "PlayerConditioningBoost": 0.02
+            },
+            "validation": {
+                "minCost": 6000,
+                "maxCost": 25000,
+                "effectCaps": {
+                    "PlayerStrengthBoost": 0.10
+                }
+            }
+        },
+        {
+            "level": 2,
+            "upgradeCost": 30000,
+            "descriptor": "Improved physical resilience and fatigue management.",
+            "effects": {
+                "PlayerStrengthBoost": 0.08,
+                "PlayerConditioningBoost": 0.04,
+                "FatigueResistance": 0.03
+            },
+            "validation": {
+                "minCost": 18000,
+                "maxCost": 60000,
+                "effectCaps": {
+                    "PlayerStrengthBoost": 0.15
+                }
+            }
+        },
+        {
+            "level": 3,
+            "upgradeCost": 65000,
+            "descriptor": "Advanced training techniques for peak performance.",
+            "effects": {
+                "PlayerStrengthBoost": 0.12,
+                "PlayerConditioningBoost": 0.06,
+                "FatigueResistance": 0.06
+            },
+            "validation": {
+                "minCost": 40000,
+                "maxCost": 120000,
+                "effectCaps": {
+                    "PlayerStrengthBoost": 0.20
+                }
+            }
+        },
+        {
+            "level": 4,
+            "upgradeCost": 120000,
+            "descriptor": "High-intensity conditioning and injury prevention.",
+            "effects": {
+                "PlayerStrengthBoost": 0.16,
+                "PlayerConditioningBoost": 0.08,
+                "FatigueResistance": 0.09
+            },
+            "validation": {
+                "minCost": 80000,
+                "maxCost": 200000,
+                "effectCaps": {
+                    "PlayerStrengthBoost": 0.25
+                }
+            }
+        },
+        {
+            "level": 5,
+            "upgradeCost": 250000,
+            "descriptor": "World-class strength and conditioning facilities.",
+            "effects": {
+                "PlayerStrengthBoost": 0.20,
+                "PlayerConditioningBoost": 0.10,
+                "FatigueResistance": 0.12
+            },
+            "validation": {
+                "minCost": 180000,
+                "maxCost": 350000,
+                "effectCaps": {
+                    "PlayerStrengthBoost": 0.30
+                }
+            }
+        }
+    ]
+}

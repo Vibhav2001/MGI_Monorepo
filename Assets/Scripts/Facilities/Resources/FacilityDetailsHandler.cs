@@ -21,15 +21,13 @@ public class FacilityDetailsHandler : MonoBehaviour
     public string filmRes = "Film";
 
     [Header("Server config")]
-    public string apiBaseUrl = "http://localhost:5263/api";  // base URL
-    public string statusPath = "/facilitystatus";            // GET ?teamId=...&playerFacilityId=...
+    public string apiBaseUrl = "http://localhost:5263/api";
+    public string statusPath = "/facilitystatus";
+    public string configPath = "/facilityconfig";
 
-    // NEW: endpoint that returns the full config (levels/effects/costs) for a facility
-    public string configPath = "/facilityconfig";            // GET ?facilityType=WeightRoom
-
-    [Header("IDs (set in Inspector or via SetIds(...) before calling Show*FromServer)")]
-    public string teamId = "1";
-    public string playerFacilityId = "1";
+    [Header("IDs (currently reused for local refresh)")]
+    public string teamId = FacilitiesService.DefaultPlayerId; // treated as playerId in local mode
+    public string playerFacilityId = "weight_room";          // treated as facilityTypeId in local mode
 
     [Header("Defaults for local-only testing")]
     public FacilityType defaultFacility = FacilityType.WeightRoom;
@@ -37,14 +35,29 @@ public class FacilityDetailsHandler : MonoBehaviour
 
     // Internal state
     readonly Dictionary<FacilityType, FacilityConfigRoot> _configs = new();
+    readonly FacilitiesService _facilitiesService = new();
+
     FacilityType _activeFacility;
     FacilityConfigRoot _activeConfig;
+
+    readonly Dictionary<FacilityType, string> _facilityTypeToId = new()
+    {
+        { FacilityType.WeightRoom, "weight_room" },
+        { FacilityType.Rehab, "rehab_center" },
+        { FacilityType.Film, "film_room" }
+    };
+
+    readonly Dictionary<string, FacilityType> _facilityIdToType = new()
+    {
+        { "weight_room", FacilityType.WeightRoom },
+        { "rehab_center", FacilityType.Rehab },
+        { "film_room", FacilityType.Film }
+    };
 
     void OnEnable()
     {
         LoadAllFromResources();
 
-        // Show default with local level (useful if server is down)
         if (_configs.TryGetValue(defaultFacility, out var def))
         {
             _activeFacility = defaultFacility;
@@ -66,34 +79,32 @@ public class FacilityDetailsHandler : MonoBehaviour
         }
     }
 
-    // -------------------- Public: called by buttons --------------------
+    // -------------------- Public --------------------
 
-    // 1) Set IDs for the next request (call this first in OnClick)
+    // In local mode:
+    // teamId == playerId
+    // playerFacilityId == facilityTypeId
     public void SetIds(string team, string pfId)
     {
         teamId = team;
         playerFacilityId = pfId;
     }
 
-    // 2) Then call one of these to fetch level from server and show JSON effects:
     public void ShowWeightRoomFromServer() { StartCoroutine(FetchLevelAndShow(FacilityType.WeightRoom)); }
     public void ShowRehabFromServer() { StartCoroutine(FetchLevelAndShow(FacilityType.Rehab)); }
     public void ShowFilmFromServer() { StartCoroutine(FetchLevelAndShow(FacilityType.Film)); }
 
-    // Call after a successful upgrade POST to refresh currently visible facility
     public void RefreshFromServer() { StartCoroutine(FetchLevelAndShow(_activeFacility)); }
 
-    // Optional local-only test (no server)
     public void ShowWeightRoom() { SwitchFacility(FacilityType.WeightRoom, currentLevel); }
     public void ShowRehab() { SwitchFacility(FacilityType.Rehab, currentLevel); }
     public void ShowFilm() { SwitchFacility(FacilityType.Film, currentLevel); }
     public void SetLevelFromButton(int level) { SetCurrentLevel(level); }
 
-    // -------------------- Server fetch --------------------
+    // -------------------- Server fetch (kept as-is) --------------------
 
     System.Collections.IEnumerator TryFetchConfigFromServer(FacilityType type)
     {
-        // already have it? skip
         if (_configs.ContainsKey(type)) yield break;
 
         string url = $"{apiBaseUrl.TrimEnd('/')}/{configPath.TrimStart('/')}?facilityType={type}";
@@ -101,14 +112,14 @@ public class FacilityDetailsHandler : MonoBehaviour
         {
             yield return req.SendWebRequest();
 #if UNITY_2020_2_OR_NEWER
-        bool isError = req.result != UnityWebRequest.Result.Success;
+            bool isError = req.result != UnityWebRequest.Result.Success;
 #else
             bool isError = req.isNetworkError || req.isHttpError;
 #endif
             if (isError)
             {
                 Debug.LogWarning($"Config GET failed: {req.responseCode} {req.error} ({url}) — will fall back to Resources.");
-                yield break; // fallback to local JSON
+                yield break;
             }
 
             FacilityConfigRoot cfg = null;
@@ -123,13 +134,10 @@ public class FacilityDetailsHandler : MonoBehaviour
         }
     }
 
-
     System.Collections.IEnumerator FetchLevelAndShow(FacilityType type)
     {
-        // NEW: try to fetch dynamic config from API (non-fatal if it fails)
         yield return StartCoroutine(TryFetchConfigFromServer(type));
 
-        // Fallback to local JSON if server didn't provide config
         if (!_configs.ContainsKey(type))
         {
             Debug.LogError($"No config for {type}. Ensure server /facilityconfig or place JSON in Resources.");
@@ -173,6 +181,7 @@ public class FacilityDetailsHandler : MonoBehaviour
             Debug.LogError($"SwitchFacility: no config for {type}.");
             return;
         }
+
         _activeFacility = type;
         _activeConfig = conf;
         SetCurrentLevel(levelFromDb);
@@ -199,8 +208,6 @@ public class FacilityDetailsHandler : MonoBehaviour
         if (currentLevelText)
             currentLevelText.text = $"{displayName} • Level {currentLevel} / Max {maxLevel}";
 
-        // if (currentLevelText) currentLevelText.text = $"{_activeFacility} • Level {currentLevel} / Max {maxLevel}";
-
         if (cur != null)
         {
             if (multiplierText) multiplierText.text = FormatMultiplier(cur.effects);
@@ -224,7 +231,7 @@ public class FacilityDetailsHandler : MonoBehaviour
         }
     }
 
-    // -------------------- Local JSON load --------------------
+    // -------------------- Local JSON / FacilitiesService refresh --------------------
 
     void LoadAllFromResources()
     {
@@ -237,8 +244,10 @@ public class FacilityDetailsHandler : MonoBehaviour
     void TryLoad(FacilityType type, string resName)
     {
         if (string.IsNullOrWhiteSpace(resName)) return;
+
         TextAsset ta = Resources.Load<TextAsset>(resName);
         if (ta == null) return;
+
         var cfg = SafeParse(ta.text);
         if (cfg != null && cfg.levels != null && cfg.levels.Count > 0)
             _configs[type] = cfg;
@@ -254,6 +263,52 @@ public class FacilityDetailsHandler : MonoBehaviour
             Debug.LogError($"FacilityDetailsHandler: JSON parse error: {ex.Message}");
             return null;
         }
+    }
+
+    public void RefreshFromLocalState()
+    {
+        LoadAllFromResources();
+
+        string playerId = string.IsNullOrWhiteSpace(teamId) ? FacilitiesService.DefaultPlayerId : teamId;
+        string facilityTypeId = ResolveFacilityTypeId();
+
+        if (!_facilityIdToType.TryGetValue(facilityTypeId, out var facilityType))
+        {
+            Debug.LogWarning($"RefreshFromLocalState: unknown facilityTypeId '{facilityTypeId}'. Falling back to active facility.");
+            facilityType = _activeFacility;
+        }
+
+        if (!_configs.ContainsKey(facilityType))
+        {
+            Debug.LogError($"RefreshFromLocalState: no config loaded for {facilityType}.");
+            return;
+        }
+
+        var progress = _facilitiesService.GetFacilityProgress(playerId, facilityTypeId);
+
+        if (progress == null)
+        {
+            Debug.LogWarning("RefreshFromLocalState: no facility progress found. Falling back to current level.");
+            SwitchFacility(facilityType, currentLevel);
+            return;
+        }
+
+        SwitchFacility(facilityType, progress.level);
+    }
+
+    string ResolveFacilityTypeId()
+    {
+        if (!string.IsNullOrWhiteSpace(playerFacilityId) && _facilityIdToType.ContainsKey(playerFacilityId))
+        {
+            return playerFacilityId;
+        }
+
+        if (_facilityTypeToId.TryGetValue(_activeFacility, out var activeId))
+        {
+            return activeId;
+        }
+
+        return _facilityTypeToId[defaultFacility];
     }
 
     // -------------------- Formatting helpers --------------------
@@ -306,10 +361,8 @@ public class FacilityDetailsHandler : MonoBehaviour
 
     string PrettyValue(string key, float v)
     {
-        // Multipliers like 1.5 -> "1.50x"
         if (key.EndsWith("Multiplier")) return $"{v:0.00}x";
 
-        // Percent-style keys:
         bool isPercent =
             key.EndsWith("Boost") ||
             key.Contains("Resistance") ||
@@ -317,12 +370,10 @@ public class FacilityDetailsHandler : MonoBehaviour
 
         if (isPercent)
         {
-            // If value is a fraction (0..1), show as percent; if already in percent points (>1), don't multiply.
             float display = (v <= 1f) ? (v * 100f) : v;
             return $"{display:0.#}%";
         }
 
-        // Fallback
         if (key.Contains("Weeks")) return $"{v:0.#} weeks";
         return v.ToString("0.###");
     }
@@ -338,7 +389,10 @@ public class FacilityDetailsHandler : MonoBehaviour
     }
 
     [System.Serializable]
-    public class FacilityConfigRoot { public List<FacilityLevel> levels; }
+    public class FacilityConfigRoot
+    {
+        public List<FacilityLevel> levels;
+    }
 
     [System.Serializable]
     public class FacilityLevel

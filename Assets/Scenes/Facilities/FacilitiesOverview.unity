@@ -12022,7 +12022,6 @@ GameObject:
   - component: {fileID: 1580161240}
   - component: {fileID: 1580161239}
   - component: {fileID: 1580161238}
-  - component: {fileID: 1580161241}
   m_Layer: 5
   m_Name: BudgetText
   m_TagString: Untagged
@@ -12089,7 +12088,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F4B0 Facility Budget: $80,000"
+  m_text: "FACILITY BUDGET: $80,000"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -12169,23 +12168,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1580161236}
   m_CullTransparentMesh: 1
---- !u!114 &1580161241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1580161236}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbf691a0a1b6e2f48aeffe42cd42b66b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  budgetText: {fileID: 1580161239}
-  recoveryBoostText: {fileID: 1493806915}
-  apiBaseUrl: http://localhost:5263/api
-  budgetPath: /team/budget
-  teamId: d4e5f6a7-b8c9-0123-4567-890abcdef012
 --- !u!1 &1580738147
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,88 @@
+{
+    "levels": [
+        {
+            "level": 1,
+            "upgradeCost": 8000,
+            "descriptor": "Basic intelligence and scouting efficiency.",
+            "effects": {
+                "PlayerIntelligenceBoost": 0.03,
+                "ScoutingEfficiencyBoost": 0.05
+            },
+            "validation": {
+                "minCost": 4000,
+                "maxCost": 15000,
+                "effectCaps": {
+                    "PlayerIntelligenceBoost": 0.10
+                }
+            }
+        },
+        {
+            "level": 2,
+            "upgradeCost": 18000,
+            "descriptor": "Improved game planning and player understanding.",
+            "effects": {
+                "PlayerIntelligenceBoost": 0.06,
+                "ScoutingEfficiencyBoost": 0.10,
+                "GamePlanEffectiveness": 0.02
+            },
+            "validation": {
+                "minCost": 10000,
+                "maxCost": 30000,
+                "effectCaps": {
+                    "PlayerIntelligenceBoost": 0.15
+                }
+            }
+        },
+        {
+            "level": 3,
+            "upgradeCost": 40000,
+            "descriptor": "Advanced tactical analysis and scouting network.",
+            "effects": {
+                "PlayerIntelligenceBoost": 0.09,
+                "ScoutingEfficiencyBoost": 0.15,
+                "GamePlanEffectiveness": 0.05
+            },
+            "validation": {
+                "minCost": 25000,
+                "maxCost": 60000,
+                "effectCaps": {
+                    "PlayerIntelligenceBoost": 0.20
+                }
+            }
+        },
+        {
+            "level": 4,
+            "upgradeCost": 80000,
+            "descriptor": "Elite film study and opponent analysis capabilities.",
+            "effects": {
+                "PlayerIntelligenceBoost": 0.12,
+                "ScoutingEfficiencyBoost": 0.20,
+                "GamePlanEffectiveness": 0.08
+            },
+            "validation": {
+                "minCost": 50000,
+                "maxCost": 120000,
+                "effectCaps": {
+                    "PlayerIntelligenceBoost": 0.25
+                }
+            }
+        },
+        {
+            "level": 5,
+            "upgradeCost": 150000,
+            "descriptor": "Cutting-edge intelligence and comprehensive scouting.",
+            "effects": {
+                "PlayerIntelligenceBoost": 0.15,
+                "ScoutingEfficiencyBoost": 0.25,
+                "GamePlanEffectiveness": 0.10
+            },
+            "validation": {
+                "minCost": 100000,
+                "maxCost": 200000,
+                "effectCaps": {
+                    "PlayerIntelligenceBoost": 0.30
+                }
+            }
+        }
+    ]
+}
