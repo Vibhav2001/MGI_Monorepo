@@ -292,7 +292,7 @@ These tasks are the foundational building blocks and have now been **implemented
 
 ## Phase 3 (Week 3) – Hardening, Tooling, and LLM‑Friendly Contracts
 
-### 7. Cross‑Team – Document Contracts & Provide Stubs for LLMs
+### 7. Cross‑Team – Document Contracts & Provide Stubs
 
 - **7.1 Contract Documentation Files per Team**
   - **Goal**: Make it trivial to ask an LLM for new features without breaking contracts.
@@ -307,8 +307,6 @@ These tasks are the foundational building blocks and have now been **implemented
       - Enumerate **public service methods** (signatures & behavior).
       - Specify **owned JSON files** and their schemas.
       - List **events produced/consumed** with example payloads.
-    - Add a short “How to ask an LLM for help” section:
-      - E.g. “When generating code, assume `EconomyService.TrySpend` exists with this signature and semantics.”
   - **Dependencies**: Services must exist from Phases 1–2.
 
 ### 8. Stability & Idempotency
